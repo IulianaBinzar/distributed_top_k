@@ -17,6 +17,11 @@ class HeavyKeeper:
         self.sketch = [{} for x in range(len(self.hash_algs))]
         self.current_top_k = []
 
+    def url_fingerprint(self, accessed_url: str, hash_alg: str):
+        url_bytes = accessed_url.encode('utf-8')
+        h = hashlib.new(hash_alg)
+        h.update(url_bytes)
+        return h.digest()
+
     def process_log(self, accesed_url: str):
-        
-        hashed_url = hash(accessed_url)
+        return None
