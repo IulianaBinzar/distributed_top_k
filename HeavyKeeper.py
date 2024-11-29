@@ -7,11 +7,11 @@ class HeavyKeeper:
     def __init__(self, k):
         """
         Params for fine-tuning
-        b - decay factor - 0.8 in the paper
+        b - decay factor - 1.08 in the paper
         hash_keys - hashing keys - 2 in the paper
         hash_size - size of the hash table - 10000 in the paper
         """
-        self.b = 0.8
+        self.b = 1.08
         self.hash_keys = [Fernet.generate_key() for _ in range(3)]
         self.hash_size = 5000
         # Other initialisations
@@ -54,7 +54,7 @@ class HeavyKeeper:
                 self.sketch[i][hash_index] = (fingerprint, sketch_counter)
                 true_count = min(true_count, sketch_counter)
             else:
-                decay_probability = sketch_counter ** (-self.b)
+                decay_probability = self.b ** (-sketch_counter)
                 if decay_probability > random.random():
                     sketch_counter -= 1
                     if sketch_counter > 0:
