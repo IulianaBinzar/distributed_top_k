@@ -1,5 +1,7 @@
 from cryptography.fernet import Fernet
 from collections import defaultdict
+
+import logging
 import random
 import heapq
 
@@ -13,7 +15,7 @@ class HeavyKeeper:
         """
         self.b = 1.08
         self.hash_keys = [Fernet.generate_key() for _ in range(3)]
-        self.hash_size = 5000
+        self.hash_size = 5
         # Other initialisations
         self.k = k # length of the list being kept
         self.sketch = [[(None, 0)
@@ -40,7 +42,7 @@ class HeavyKeeper:
         return int_encrypted_url
 
     def process_log(self, accesed_url: str):
-        true_count = float("inf")
+        # true_count = float("inf")
 
         for i, x in enumerate(self.hash_keys):
             fingerprint = self.url_fingerprint(accesed_url, x)
@@ -48,12 +50,13 @@ class HeavyKeeper:
             sketch_fp, sketch_counter = self.sketch[i][hash_index]
             if not sketch_counter:
                 self.sketch[i][hash_index] = (fingerprint, 1)
-                true_count = min(true_count, 1)
+                logging.info("Sketch counter not in sketch")
             elif sketch_fp == fingerprint:
                 sketch_counter += 1
+                logging.info("Matched the fingerprint")
                 self.sketch[i][hash_index] = (fingerprint, sketch_counter)
-                true_count = min(true_count, sketch_counter)
             else:
+                logging.info("Applying decay")
                 decay_probability = self.b ** (-sketch_counter)
                 if decay_probability > random.random():
                     sketch_counter -= 1
@@ -61,7 +64,9 @@ class HeavyKeeper:
                         self.sketch[i][hash_index] = (sketch_fp, sketch_counter)
                     else:
                         self.sketch[i][hash_index] = (fingerprint, 1)
-                        true_count = min(true_count, 1)
+
+            true_count = self.sketch[i][hash_index][1]
+            # true_count = min(true_count, self.sketch[i][hash_index][1])
 
             for i, (freq, heap_item) in enumerate(self.current_top_k):
                 if heap_item == accesed_url:
@@ -69,6 +74,6 @@ class HeavyKeeper:
                     break
             else:
                 heapq.heappush(self.current_top_k, (true_count, accesed_url))
-
+            logging.info(f"Sketch {self.sketch}")
             if len(self.current_top_k) > self.k:
                 heapq.heappop(self.current_top_k)

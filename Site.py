@@ -13,7 +13,7 @@ class Site:
     def process_log(self, log_line: str) -> None:
         log_url = self.extract_url(log_line)
         log_time = self.extract_time(log_line)
-        logging.info(f"Site {self.site_id} accessed url: {log_url} at {log_time}, log nr {self.processed_logs}")
+        logging.info(f"Site {self.site_id} accessed url: {log_url} at {log_time}")
         accessed_url = self.extract_url(log_line)
         self.site_heavy_keeper.process_log(accessed_url)
         self.processed_logs += 1
@@ -22,7 +22,7 @@ class Site:
             logging.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
             logging.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
             logging.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-            logging.info(f"Sit {self.site_id} top-k: {self.site_heavy_keeper.get_string_top_k()}")
+            logging.info(f"Site {self.site_id} top-k: {self.site_heavy_keeper.get_string_top_k()}")
             logging.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
             logging.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
             logging.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
