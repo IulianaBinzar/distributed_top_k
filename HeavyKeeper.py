@@ -1,6 +1,7 @@
 from cryptography.fernet import Fernet
 from collections import defaultdict
 import random
+import heapq
 
 class HeavyKeeper:
     def __init__(self, k):
@@ -20,16 +21,16 @@ class HeavyKeeper:
                        for _ in range(len(self.hash_keys))]
         self.current_top_k = []
 
-    def get_hashed_top_k(self) -> list[bytes]:
+    def get_string_top_k(self):
         hashed_result = list(self.current_top_k)
         hashed_result.sort(reverse=True)
         return hashed_result
 
-    def get_string_top_k(self, hash_key: bytes) -> list[str]:
-        hashed_result = self.get_hashed_top_k()
-        fernet = Fernet(hash_key)
-        string_result = [fernet.decrypt(x) for x in hashed_result]
-        return string_result
+    # def get_string_top_k(self, hash_key: bytes) -> list[str]:
+    #     hashed_result = self.get_hashed_top_k()
+    #     fernet = Fernet(hash_key)
+    #     string_result = [fernet.decrypt(x) for x in hashed_result]
+    #     return string_result
 
     def url_fingerprint(self, accessed_url: str, hash_key: bytes):
         url_bytes = accessed_url.encode('utf-8')
@@ -39,7 +40,7 @@ class HeavyKeeper:
         return int_encrypted_url
 
     def process_log(self, accesed_url: str):
-        true_count = 0
+        true_count = float("inf")
 
         for i, x in enumerate(self.hash_keys):
             fingerprint = self.url_fingerprint(accesed_url, x)
@@ -64,10 +65,10 @@ class HeavyKeeper:
 
             for i, (freq, heap_item) in enumerate(self.current_top_k):
                 if heap_item == accesed_url:
-                    self.current_top_k[i] = (freq, accesed_url)
-                    heapq.heapify(self.current_top_k)
-                else:
-                    heapq.heappush(self.current_top_k, (true_count, accesed_url))
+                    self.current_top_k[i] = (true_count, accesed_url)
+                    break
+            else:
+                heapq.heappush(self.current_top_k, (true_count, accesed_url))
 
             if len(self.current_top_k) > self.k:
-                heapq.heapop(self.current_top_k)
+                heapq.heappop(self.current_top_k)
