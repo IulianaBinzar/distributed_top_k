@@ -10,7 +10,8 @@ def main():
         level=logging.INFO,
         format='%(asctime)s %(levelname)s: %(message)s'
     )
-    sites = {site_id: Site(site_id) for site_id in range(3)}
+    k = 10
+    sites = {site_id: Site(site_id, k) for site_id in range(3)}
     stream_forwarder = StreamForwarder(sites)
     with open('mixed_wc_day51_3.log', 'r', encoding='ISO-8859-1') as stream:
         logging.info("Parsing stream.")
