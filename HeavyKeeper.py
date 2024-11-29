@@ -1,5 +1,6 @@
 from crypthography.Fernet import Fernet
 from collections import defaultdict
+import random
 
 class HeavyKeeper:
     def __init__(self, k):
@@ -52,5 +53,21 @@ class HeavyKeeper:
                 self.sketch[i][hash_index] = (fingerprint, sketch_counter)
                 true_count = min(true_count, sketch_counter)
             else:
-                self.sketch[i][hash_index]["counter"] *= self.b
-        return None
+                decay_probability = sketch_counter ** (-self.b)
+                if decay_probability > random.random():
+                    sketch_counter -= 1
+                    if sketch_counter > 0:
+                        self.sketch[i][hash_index] = (sketch_fp, sketch_counter)
+                    else:
+                        self.sketch[i][hash_index] = (fingerprint, 1)
+                        true_count = min(true_count, 1)
+
+            for i, (freq, heap_item) in enumerate(self.heap):
+                if heap_item == accesed_url:
+                    self.heap[i] = (freq, accesed_url)
+                    heapq.heapify(self.heap)
+                else:
+                    heapq.heappush(self.heap, (true_count, accesed_url))
+
+            if len(self.heap) > self.k:
+                heapq.heapop(self.heap)
