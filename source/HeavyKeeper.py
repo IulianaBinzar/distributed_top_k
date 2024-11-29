@@ -15,7 +15,7 @@ class HeavyKeeper:
         """
         self.b = 1.08
         self.hash_keys = [str(random.randint(0, 2 ** 32 - 1)).encode('utf-8') for _ in range(3)]
-        self.hash_size = 5
+        self.hash_size = 10000
         # Other initialisations
         self.k = k # length of the list being kept
         self.sketch = [[(None, 0)
@@ -49,13 +49,10 @@ class HeavyKeeper:
             sketch_fp, sketch_counter = self.sketch[i][hash_index]
             if not sketch_counter:
                 self.sketch[i][hash_index] = (fingerprint, 1)
-                logging.info("Sketch counter not in sketch")
             elif sketch_fp == fingerprint:
                 sketch_counter += 1
-                logging.info("Matched the fingerprint")
                 self.sketch[i][hash_index] = (fingerprint, sketch_counter)
             else:
-                logging.info("Applying decay")
                 decay_probability = self.b ** (-sketch_counter)
                 if decay_probability > random.random():
                     sketch_counter -= 1
@@ -73,6 +70,5 @@ class HeavyKeeper:
                     break
             else:
                 heapq.heappush(self.current_top_k, (true_count, accesed_url))
-            logging.info(f"Sketch {self.sketch}")
             if len(self.current_top_k) > self.k:
                 heapq.heappop(self.current_top_k)

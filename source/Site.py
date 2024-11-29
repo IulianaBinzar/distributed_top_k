@@ -1,7 +1,7 @@
 import logging
 import datetime
 
-from distributed_top_k.HeavyKeeper import HeavyKeeper
+from distributed_top_k.source.HeavyKeeper import HeavyKeeper
 
 class Site:
     def __init__(self, site_id, k):
