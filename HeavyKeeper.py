@@ -9,7 +9,6 @@ class HeavyKeeper:
         b - decay factor - 0.8 in the paper
         hash_keys - hashing keys - 2 in the paper
         hash_size - size of the hash table - 10000 in the paper
-
         """
         self.b = 0.8
         self.hash_keys = [Fernet.generate_key() for _ in range(3)]
