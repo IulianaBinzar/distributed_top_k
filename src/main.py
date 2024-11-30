@@ -3,7 +3,7 @@ from Site import Site
 import logging
 import random
 
-from distributed_top_k.source.HeavyKeeper import HeavyKeeper
+from HeavyKeeper import HeavyKeeper
 
 
 def main():

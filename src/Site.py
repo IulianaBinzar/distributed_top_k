@@ -1,32 +1,29 @@
 import logging
 import datetime
+from datetime import timedelta
 
-from distributed_top_k.src.HeavyKeeper import HeavyKeeper
+from HeavyKeeper import HeavyKeeper
 
 class Site:
     def __init__(self, site_id, k):
         self.site_id = site_id
         self.k = k
         self.site_heavy_keeper = HeavyKeeper(self.k)
-        self.processed_logs = 0
+        self.last_report_time = None
 
     def process_log(self, log_line: str) -> None:
         log_url = self.extract_url(log_line)
         log_time = self.extract_time(log_line)
-        logging.info(f"Site {self.site_id} accessed url: {log_url} at {log_time}")
-        accessed_url = self.extract_url(log_line)
-        self.site_heavy_keeper.process_log(accessed_url)
-        self.processed_logs += 1
-        # logging.info(f"HK{self.HeavyKeeper.get_string_top_k()}")
-        if self.processed_logs == 50:
-            logging.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-            logging.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-            logging.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-            logging.info(f"Site {self.site_id} top-k: {self.site_heavy_keeper.get_string_top_k()}")
-            logging.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-            logging.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-            logging.info("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-            self.processed_logs = 0
+        # logging.info(f"Site {self.site_id} accessed url: {log_url} at {log_time}")
+        self.site_heavy_keeper.process_log(log_url)
+        if not self.last_report_time:
+            self.last_report_time = log_time
+        if log_time - self.last_report_time > timedelta(minutes=1):
+            self.last_report_time = log_time
+            logging.info(f"Site {self.site_id} top k at {log_time}:")
+            logging.info(self.site_heavy_keeper.get_string_top_k())
+
+
 
     def extract_url(self, log_line: str) -> str:
         log_url = log_line.strip().split(" ")[2]
