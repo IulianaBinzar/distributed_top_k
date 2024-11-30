@@ -8,14 +8,19 @@ class Site:
     def __init__(self, site_id, k):
         self.site_id = site_id
         self.k = k
-        self.site_heavy_keeper = HeavyKeeper(self.k)
+        self.site_heavy_keeper = None
         self.last_report_time = None
+        self.last_hk_reset_time = None
 
     def process_log(self, log_line: str) -> None:
         log_url = self.extract_url(log_line)
         log_time = self.extract_time(log_line)
         # logging.info(f"Site {self.site_id} accessed url: {log_url} at {log_time}")
+        if not self.last_hk_reset_time or self.last_hk_reset_time - log_time > timedelta(hours=1):
+            self.site_heavy_keeper = HeavyKeeper(self.k)
+            self.last_hk_reset_time = log_time
         self.site_heavy_keeper.process_log(log_url)
+
         if not self.last_report_time:
             self.last_report_time = log_time
         if log_time - self.last_report_time > timedelta(minutes=1):
