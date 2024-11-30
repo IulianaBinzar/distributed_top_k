@@ -19,6 +19,7 @@ class Site:
         if not self.last_hk_reset_time or self.last_hk_reset_time - log_time > timedelta(hours=1):
             self.site_heavy_keeper = HeavyKeeper(self.k)
             self.last_hk_reset_time = log_time
+            self.last_report_time = None
         self.site_heavy_keeper.process_log(log_url)
 
         if not self.last_report_time:
