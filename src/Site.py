@@ -23,8 +23,6 @@ class Site:
             logging.info(f"Site {self.site_id} top k at {log_time}:")
             logging.info(self.site_heavy_keeper.get_string_top_k())
 
-
-
     def extract_url(self, log_line: str) -> str:
         log_url = log_line.strip().split(" ")[2]
         return log_url
