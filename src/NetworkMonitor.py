@@ -21,4 +21,4 @@ class NetworkMonitor:
                               "frequency": [freq]})
             ], ignore_index=True)
 
-            logging.info(f"Received top-k for node {node_id} at timestamp {timestamp}: {top_k}")
+        logging.info(f"Received top-k for node {node_id} at timestamp {timestamp}: {top_k}")

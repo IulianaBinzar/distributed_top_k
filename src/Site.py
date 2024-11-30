@@ -27,11 +27,10 @@ class Site:
         if not self.last_report_time:
             self.last_report_time = log_time
         if log_time - self.last_report_time > timedelta(minutes=1):
-            self.last_report_time = log_time
             top_k = self.site_heavy_keeper.get_string_top_k()
+            logging.info(f"Site {self.site_id} top k at {log_time}: {top_k}")
+            self.last_report_time = log_time
             self.network_monitor.receive_top_k(self.site_id, top_k, log_time)
-            logging.info(f"Site {self.site_id} top k at {log_time}:")
-            logging.info(top_k)
 
     def extract_url(self, log_line: str) -> str:
         log_url = log_line.strip().split(" ")[2]
