@@ -1,7 +1,7 @@
 import logging
 import datetime
 
-from distributed_top_k.source.HeavyKeeper import HeavyKeeper
+from distributed_top_k.src.HeavyKeeper import HeavyKeeper
 
 class Site:
     def __init__(self, site_id, k):
@@ -33,13 +33,11 @@ class Site:
         return log_url
 
     def extract_time(self, log_line: str):
+        time_str = log_line.strip().split(" ")[0]
+        offset_str = log_line.strip().split(" ")[1]
         log_timestamp = datetime.datetime.strptime(
-            log_line.strip().split(" ")[0],
-            "[%d/%b/%Y:%H:%M:%S"
+            time_str + " " + offset_str,
+            "[%d/%b/%Y:%H:%M:%S %z]"
         )
-        offset =datetime.datetime.strptime(
-            log_line.strip().split(" ")[1],
-            "%z]"
-        )
-        log_timestamp.replace(tzinfo=offset.tzinfo)
-        return log_timestamp
+        utc_timestamp = log_timestamp.astimezone(datetime.timezone.utc)
+        return utc_timestamp
