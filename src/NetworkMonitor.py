@@ -8,11 +8,14 @@ class NetworkMonitor:
         self.node_top_k = {}
 
     def receive_top_k(self, node_id, top_k, timestamp):
+        """
+         Converts top_k lists to panda dataframes for further processing
+        """
+        logging.info(f"Network Monitor received top-k for node {node_id} at timestamp {timestamp}: {top_k}")
         if node_id not in self.node_top_k:
             self.node_top_k[node_id] = pd.DataFrame(columns=["timestamp",
                                                              "item",
                                                              "frequency"])
-
         for item, freq in top_k:
             self.node_top_k[node_id] = pd.concat([
                 self.node_top_k[node_id],
@@ -21,4 +24,5 @@ class NetworkMonitor:
                               "frequency": [freq]})
             ], ignore_index=True)
 
-        logging.info(f"Received top-k for node {node_id} at timestamp {timestamp}: {top_k}")
+        logging.info(f"Node {node_id} dataframe: {self.node_top_k[node_id]}")
+

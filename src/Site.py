@@ -16,7 +16,7 @@ class Site:
     def process_log(self, log_line: str) -> None:
         log_url = self.extract_url(log_line)
         log_time = self.extract_time(log_line)
-        # logging.info(f"Site {self.site_id} accessed url: {log_url} at {log_time}")
+        logging.debug(f"Site {self.site_id} accessed url: {log_url} at {log_time}")
 
         if not self.last_hk_reset_time or self.last_hk_reset_time - log_time > timedelta(hours=1):
             self.site_heavy_keeper = HeavyKeeper(self.k)
@@ -28,7 +28,7 @@ class Site:
             self.last_report_time = log_time
         if log_time - self.last_report_time > timedelta(minutes=1):
             top_k = self.site_heavy_keeper.get_string_top_k()
-            logging.info(f"Site {self.site_id} top k at {log_time}: {top_k}")
+            logging.debug(f"Site {self.site_id} top k at {log_time}: {top_k}")
             self.last_report_time = log_time
             self.network_monitor.receive_top_k(self.site_id, top_k, log_time)
 
