@@ -16,7 +16,7 @@ class NetworkMonitor:
             self.node_top_k[node_id] = pd.DataFrame(columns=["timestamp",
                                                              "item",
                                                              "frequency"])
-        for item, freq in top_k:
+        for freq, item in top_k:
             self.node_top_k[node_id] = pd.concat([
                 self.node_top_k[node_id],
                 pd.DataFrame({"timestamp": [timestamp],
@@ -24,5 +24,5 @@ class NetworkMonitor:
                               "frequency": [freq]})
             ], ignore_index=True)
 
-        logging.info(f"Node {node_id} dataframe: {self.node_top_k[node_id]}")
+        logging.debug(f"Node {node_id} dataframe: \n{self.node_top_k[node_id]}")
 
