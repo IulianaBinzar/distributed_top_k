@@ -14,7 +14,7 @@ class NetworkMonitor:
         """
          Converts top_k lists to panda dataframes for further processing
         """
-        logging.info(f"Network Monitor received top-k for node {node_id} at timestamp {timestamp}: {top_k}")
+        logging.debug(f"Network Monitor received top-k for node {node_id} at timestamp {timestamp}: {top_k}")
         top_k_dataframe = pd.DataFrame(columns=["timestamp",
                                                 "url",
                                                 "frequency"])
@@ -53,6 +53,8 @@ class NetworkMonitor:
             rank_dict = {url: rank + 1 for rank, url in enumerate(ranked_urls)}
             ranked_dataframe[f"Node_{site_id}"] = ranked_dataframe.index.map(rank_dict)
         ranked_dataframe = ranked_dataframe.fillna(0)
+        logging.info(f"Processing Network Dataframe: \n {ranked_dataframe}")
         correlation_matrix = ranked_dataframe.corr(method='spearman')
+        logging.info(f"Generated Correlation Matrix: \n {correlation_matrix}")
         return correlation_matrix
 
