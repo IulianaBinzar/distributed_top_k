@@ -14,7 +14,7 @@ def main():
         format='%(asctime)s %(levelname)s: %(message)s'
     )
     node_count = 3
-    k = 5
+    k = 15
 
     network_monitor = NetworkMonitor(k, node_count)
     sites = {site_id: Site(site_id, k, network_monitor) for site_id in range(node_count)}
