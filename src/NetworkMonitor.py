@@ -37,22 +37,22 @@ class NetworkMonitor:
         #     self.correlate_node_results()
         #     self.last_aggregate_time = timestamp
 
-    #     if all(self.latest_data_collected):
-    #         self.correlate_node_results()
-    #         self.latest_data_collected = [False for _ in range(self.node_count)]
-    #
-    #
-    # def correlate_node_results(self):
-    #     unique_urls = set()
-    #     for x, dataframe in self.node_top_k.items():
-    #         unique_urls.update(dataframe["url"].unique())
-    #     unique_urls = sorted(unique_urls)
-    #     ranked_dataframe = pd.DataFrame(index=unique_urls)
-    #     for site_id, df in self.node_top_k.items():
-    #         ranked_urls = df.sort_values(by="frequency", ascending=False)["url"].reset_index(drop=True)
-    #         rank_dict = {url: rank + 1 for rank, url in enumerate(ranked_urls)}
-    #         ranked_dataframe[f"Node_{site_id}"] = ranked_dataframe.index.map(rank_dict)
-    #     ranked_dataframe = ranked_dataframe.fillna(0)
-    #     correlation_matrix = ranked_dataframe.corr(method='spearman')
-    #     return correlation_matrix
+        if all(self.latest_data_collected):
+            self.correlate_node_results()
+            self.latest_data_collected = [False for _ in range(self.node_count)]
+
+
+    def correlate_node_results(self):
+        unique_urls = set()
+        for x, dataframe in self.node_top_k.items():
+            unique_urls.update(dataframe["url"].unique())
+        unique_urls = sorted(unique_urls)
+        ranked_dataframe = pd.DataFrame(index=unique_urls)
+        for site_id, df in self.node_top_k.items():
+            ranked_urls = df.sort_values(by="frequency", ascending=False)["url"].reset_index(drop=True)
+            rank_dict = {url: rank + 1 for rank, url in enumerate(ranked_urls)}
+            ranked_dataframe[f"Node_{site_id}"] = ranked_dataframe.index.map(rank_dict)
+        ranked_dataframe = ranked_dataframe.fillna(0)
+        correlation_matrix = ranked_dataframe.corr(method='spearman')
+        return correlation_matrix
 
