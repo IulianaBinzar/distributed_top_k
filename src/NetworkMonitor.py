@@ -8,7 +8,11 @@ class NetworkMonitor:
         self.k = k
         self.node_top_k = {}
         self.node_count = node_count
+        self.latest_data_timestamp = None
         self.latest_data_collected = [False for _ in range(self.node_count)]
+        self.sliding_window_df = pd.DataFrame(columns=["timestamp"] +
+                                                      [f"node_{x}_top_k" for x in range(self.node_count)]
+                                              )
 
     def receive_top_k(self, node_id, top_k, timestamp):
         """
@@ -36,10 +40,14 @@ class NetworkMonitor:
         # if timestamp - self.last_aggregate_time > timedelta(minutes=10):
         #     self.correlate_node_results()
         #     self.last_aggregate_time = timestamp
+        if not self.latest_data_timestamp:
+            self.latest_data_timestamp = timestamp
 
         if all(self.latest_data_collected):
-            self.correlate_node_results()
+            # self.correlate_node_results()
+            self.prepare_data_for_model()
             self.latest_data_collected = [False for _ in range(self.node_count)]
+            self.latest_data_timestamp = None
 
 
     def correlate_node_results(self):
@@ -57,4 +65,9 @@ class NetworkMonitor:
         correlation_matrix = ranked_dataframe.corr(method='spearman')
         logging.info(f"Generated Correlation Matrix: \n {correlation_matrix}")
         return correlation_matrix
+
+    def prepare_data_for_model(self, window_size=20, step_size=5):
+        if len(self.sliding_window_df) == window_size:
+            self.sliding_window_df = self.sliding_window_df[step_size:].reset_index(drop=True)
+        return self.sliding_window_df
 
