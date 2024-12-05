@@ -3,6 +3,9 @@ from os import times
 from datetime import timedelta
 import pandas as pd
 
+from FallbackMechanism import FallbackMechanism
+
+
 class NetworkMonitor:
     def __init__(self, k: int, node_count: int):
         self.k = k
@@ -11,8 +14,8 @@ class NetworkMonitor:
         self.latest_data_timestamp = None
         self.latest_data_collected = [False for _ in range(self.node_count)]
         self.sliding_window_df = pd.DataFrame(columns=["timestamp"] +
-                                                      [f"node_{x}_top_k" for x in range(self.node_count)]
-                                              )
+                                                      [f"node_{x}_top_k" for x in range(self.node_count)])
+        self.fallback_mechanism = FallbackMechanism()
 
     def receive_top_k(self, node_id, top_k, timestamp):
         """
@@ -34,12 +37,6 @@ class NetworkMonitor:
         self.latest_data_collected[node_id] = True
         logging.info(f"Node {node_id} dataframe: \n{self.node_top_k[node_id]}")
 
-        # if not self.last_aggregate_time:
-        #     self.last_aggregate_time = timestamp
-        #
-        # if timestamp - self.last_aggregate_time > timedelta(minutes=10):
-        #     self.correlate_node_results()
-        #     self.last_aggregate_time = timestamp
         if not self.latest_data_timestamp:
             self.latest_data_timestamp = timestamp
 
@@ -49,25 +46,12 @@ class NetworkMonitor:
             self.latest_data_collected = [False for _ in range(self.node_count)]
             self.latest_data_timestamp = None
 
-
-    def correlate_node_results(self):
-        unique_urls = set()
-        for x, dataframe in self.node_top_k.items():
-            unique_urls.update(dataframe["url"].unique())
-        unique_urls = sorted(unique_urls)
-        ranked_dataframe = pd.DataFrame(index=unique_urls)
-        for site_id, df in self.node_top_k.items():
-            ranked_urls = df.sort_values(by="frequency", ascending=False)["url"].reset_index(drop=True)
-            rank_dict = {url: rank + 1 for rank, url in enumerate(ranked_urls)}
-            ranked_dataframe[f"Node_{site_id}"] = ranked_dataframe.index.map(rank_dict)
-        ranked_dataframe = ranked_dataframe.fillna(0)
-        logging.info(f"Processing Network Dataframe: \n {ranked_dataframe}")
-        correlation_matrix = ranked_dataframe.corr(method='spearman')
-        logging.info(f"Generated Correlation Matrix: \n {correlation_matrix}")
-        return correlation_matrix
-
     def prepare_data_for_model(self, window_size=20, step_size=5):
-        if len(self.sliding_window_df) == window_size:
+        new_entry = {"timestamp": self.latest_data_timestamp}
+        for x in range(self.node_count - 1):
+            new_entry[f"node_{x}_top_k"] = self.node_top_k[x]["url"]
+        self.sliding_window_df = pd.concat([self.sliding_window_df, pd.DataFrame(new_entry)], ignore_index=True)
+        if len(self.sliding_window_df) >= window_size:
+            self.fallback_mechanism.forward(self.sliding_window_df)
             self.sliding_window_df = self.sliding_window_df[step_size:].reset_index(drop=True)
-        return self.sliding_window_df
 
