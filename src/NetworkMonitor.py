@@ -14,8 +14,8 @@ class NetworkMonitor:
         self.latest_data_timestamp = None
         self.latest_data_collected = [False for _ in range(self.node_count)]
         self.sliding_window_df = pd.DataFrame(columns=["timestamp"] +
-                                                      [f"node_{x}_top_k" for x in range(self.node_count)])
-        self.fallback_mechanism = FallbackMechanism()
+                                                      [f"node_{x}_top_k" for x in range(self.node_count - 1)])
+        # self.fallback_mechanism = FallbackMechanism()
 
     def receive_top_k(self, node_id, top_k, timestamp):
         """
@@ -47,11 +47,20 @@ class NetworkMonitor:
             self.latest_data_timestamp = None
 
     def prepare_data_for_model(self, window_size=20, step_size=5):
-        new_entry = {"timestamp": self.latest_data_timestamp}
-        for x in range(self.node_count - 1):
-            new_entry[f"node_{x}_top_k"] = self.node_top_k[x]["url"]
+        single_df = pd.DataFrame(self.node_top_k)
+        new_entry = {}
+        for node in single_df["node_id"].unique():
+            node_top_k = single_df[single_df["node_id"] == node]
+            node_top_k = node_top_k["url"].tolist()
+            new_entry[f"node_{node}_top_k"] = [node_top_k]
+        new_entry_df = pd.DataFrame(new_entry)
+        new_entry_df.insert(0, "timestamp", self.latest_data_timestamp)
+        if not len(self.sliding_window_df):
+            self.sliding_window_df = new_entry_df
+        else:
+            self.sliding_window_df = pd.concat([self.sliding_window_df, new_entry_df], ignore_index=True)
         self.sliding_window_df = pd.concat([self.sliding_window_df, pd.DataFrame(new_entry)], ignore_index=True)
         if len(self.sliding_window_df) >= window_size:
-            self.fallback_mechanism.forward(self.sliding_window_df)
+            # self.fallback_mechanism.forward(self.sliding_window_df)
             self.sliding_window_df = self.sliding_window_df[step_size:].reset_index(drop=True)
 
