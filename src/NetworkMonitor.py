@@ -12,6 +12,7 @@ class NetworkMonitor:
         self.node_count = node_count
         self.latest_data_timestamp = None
         self.latest_data_collected = [False for _ in range(self.node_count)]
+        self.window_size = 20
         self.sliding_window_df = pd.DataFrame(columns=["timestamp"] +
                                                       [f"node_{x}_top_k" for x in range(self.node_count)])
         self.unique_urls = set()
@@ -48,7 +49,7 @@ class NetworkMonitor:
             self.latest_data_collected = [False for _ in range(self.node_count)]
             self.latest_data_timestamp = None
 
-    def prepare_data_for_model(self, window_size=20, step_size=5):
+    def prepare_data_for_model(self, step_size=5):
         new_row ={"timestamp": self.latest_data_timestamp}
         for i in range(self.node_count):
             new_row[f"node_{i}_top_k"] = self.single_top_k[i]
@@ -57,7 +58,11 @@ class NetworkMonitor:
             self.sliding_window_df = new_row_df
         else:
             self.sliding_window_df = pd.concat([self.sliding_window_df, new_row_df], ignore_index=True)
-        if len(self.sliding_window_df) >= window_size:
-            self.fallback_mechanism.feed_data(self.sliding_window_df)
+        if len(self.sliding_window_df) >= self.window_size:
+            self.fallback_mechanism.feed_data(self.sliding_window_df,
+                                              self.window_size,
+                                              self.node_count,
+                                              self.k
+                                              )
             self.sliding_window_df = self.sliding_window_df[step_size:].reset_index(drop=True)
 
