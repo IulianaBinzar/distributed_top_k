@@ -1,8 +1,7 @@
-import logging
-from os import times
-from datetime import timedelta
 from collections import defaultdict
+
 import pandas as pd
+import logging
 
 from FallbackMechanism import FallbackMechanism
 
@@ -15,7 +14,15 @@ class NetworkMonitor:
         self.latest_data_collected = [False for _ in range(self.node_count)]
         self.sliding_window_df = pd.DataFrame(columns=["timestamp"] +
                                                       [f"node_{x}_top_k" for x in range(self.node_count)])
-        # self.fallback_mechanism = FallbackMechanism()
+        self.unique_urls = set()
+        self.url_to_id = defaultdict(int)
+        self.id_to_url = defaultdict(str)
+        self.fallback_mechanism = FallbackMechanism(input_size=k * node_count,
+                                                    output_size=k,
+                                                    hidden_size=64,
+                                                    num_layers=2,
+                                                    dropout=0.2
+                                                    )
 
     def receive_top_k(self, node_id, top_k, timestamp):
         """
@@ -24,7 +31,12 @@ class NetworkMonitor:
         logging.debug(f"Network Monitor received top-k for node {node_id} at timestamp {timestamp}: {top_k}")
         top_k_list = []
         for freq, item in top_k:
-            top_k_list.append(item)
+            if item not in self.unique_urls:
+                self.unique_urls.add(item)
+                item_code = len(self.unique_urls)
+                self.url_to_id[item] = item_code
+                self.id_to_url[item_code] = item
+            top_k_list.append(self.url_to_id[item])
         self.single_top_k[node_id] = top_k_list
         self.latest_data_collected[node_id] = True
         logging.info(f"Node {node_id} dataframe: \n{self.single_top_k[node_id]}")
@@ -32,7 +44,6 @@ class NetworkMonitor:
         if not self.latest_data_timestamp:
             self.latest_data_timestamp = timestamp
         if all(self.latest_data_collected):
-            # self.correlate_node_results()
             self.prepare_data_for_model()
             self.latest_data_collected = [False for _ in range(self.node_count)]
             self.latest_data_timestamp = None
@@ -47,6 +58,6 @@ class NetworkMonitor:
         else:
             self.sliding_window_df = pd.concat([self.sliding_window_df, new_row_df], ignore_index=True)
         if len(self.sliding_window_df) >= window_size:
-            # self.fallback_mechanism.forward(self.sliding_window_df)
+            self.fallback_mechanism.feed_data(self.sliding_window_df)
             self.sliding_window_df = self.sliding_window_df[step_size:].reset_index(drop=True)
 
