@@ -12,7 +12,7 @@ class NetworkMonitor:
         self.node_count = node_count
         self.latest_data_timestamp = None
         self.latest_data_collected = [False for _ in range(self.node_count)]
-        self.window_size = 20
+        self.window_size = 1
         self.sliding_window_df = pd.DataFrame(columns=["timestamp"] +
                                                       [f"node_{x}_top_k" for x in range(self.node_count)])
         self.unique_urls = set()
