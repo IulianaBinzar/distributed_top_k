@@ -1,2 +1,5 @@
 input
-../test/__pycache__/Test_NetworkMonitor.cpython-312.pyc
+test/__pycache__
+__pycache__
+.idea
+torchenv
