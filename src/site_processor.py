@@ -2,7 +2,7 @@ import logging
 import datetime
 from datetime import timedelta
 
-from HeavyKeeper import HeavyKeeper
+from heavy_keeper import HeavyKeeper
 
 class Site:
     def __init__(self, site_id, k, network_monitor):

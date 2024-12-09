@@ -2,7 +2,7 @@ import unittest
 import logging
 from datetime import datetime
 
-from Site import Site
+from site_processor import Site
 import datetime
 
 class TestSite(unittest.TestCase):

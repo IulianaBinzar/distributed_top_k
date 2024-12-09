@@ -3,7 +3,8 @@ from collections import defaultdict
 import pandas as pd
 import logging
 
-from FallbackMechanism import FallbackMechanism
+from fallback_mechanism import FallbackMechanism
+from utils import prepare_and_validate_tensor
 
 class NetworkMonitor:
     def __init__(self, k: int, node_count: int):
@@ -12,7 +13,7 @@ class NetworkMonitor:
         self.node_count = node_count
         self.latest_data_timestamp = None
         self.latest_data_collected = [False for _ in range(self.node_count)]
-        self.window_size = 1
+        self.window_size = 20
         self.sliding_window_df = pd.DataFrame(columns=["timestamp"] +
                                                       [f"node_{x}_top_k" for x in range(self.node_count)])
         self.unique_urls = set()
@@ -59,10 +60,11 @@ class NetworkMonitor:
         else:
             self.sliding_window_df = pd.concat([self.sliding_window_df, new_row_df], ignore_index=True)
         if len(self.sliding_window_df) >= self.window_size:
-            self.fallback_mechanism.feed_data(self.sliding_window_df,
-                                              self.window_size,
-                                              self.node_count,
-                                              self.k
-                                              )
+            batch, mask = prepare_and_validate_tensor(self.sliding_window_df,
+                                  self.window_size,
+                                  self.node_count,
+                                  self.k
+                                  )
             self.sliding_window_df = self.sliding_window_df[step_size:].reset_index(drop=True)
+            return batch, mask
 

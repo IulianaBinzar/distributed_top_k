@@ -2,7 +2,7 @@ import logging
 import random
 import unittest
 
-from HeavyKeeper import HeavyKeeper
+from heavy_keeper import HeavyKeeper
 
 class Test_HeavyKeeper(unittest.TestCase):
     def test_process_log(self):

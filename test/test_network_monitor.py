@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime
 
-from NetworkMonitor import NetworkMonitor
+from network_monitor import NetworkMonitor
 
 
 class TestNetworkMonitor(unittest.TestCase):
@@ -16,4 +16,4 @@ class TestNetworkMonitor(unittest.TestCase):
             network_monitor.receive_top_k(2, top_k_site2, test_timestamp)
         reported_dataframe = network_monitor.sliding_window_df
         self.assertEqual(4, len(reported_dataframe))
-        self.assertEqual(['a', 'b', 'c'], reported_dataframe["node_1_top_k"].iloc[2])
+        self.assertEqual([1, 2, 3], reported_dataframe["node_1_top_k"].iloc[2])

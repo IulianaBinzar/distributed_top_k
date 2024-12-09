@@ -1,10 +1,9 @@
-from NetworkMonitor import NetworkMonitor
-from StreamForwarder import StreamForwarder
-from Site import Site
+from network_monitor import NetworkMonitor
+from stream_forwarder import StreamForwarder
+from model_training import Model
+from site_processor import Site
 import logging
-import random
 
-from HeavyKeeper import HeavyKeeper
 
 
 def main():
@@ -17,6 +16,7 @@ def main():
     k = 15
 
     network_monitor = NetworkMonitor(k, node_count)
+    model = Model()
     sites = {site_id: Site(site_id, k, network_monitor) for site_id in range(node_count)}
     stream_forwarder = StreamForwarder(sites)
     with open('./../input/mixed_wc_day51_3.log', 'r', encoding='ISO-8859-1') as stream:
