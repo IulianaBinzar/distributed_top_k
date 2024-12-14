@@ -1,5 +1,6 @@
 import torch
 import pandas as pd
+import torch.nn.functional as F
 
 def pad_to_k_and_mask(lst, k):
     padded_list = (lst + [-1] * k)[:k]
@@ -26,3 +27,8 @@ def prepare_and_validate_tensor(data_frame, seq_len, node_count, k):
     data_frame = data_frame.drop(columns="timestamp")
     tensor, mask = df_to_tensors(data_frame, seq_len, node_count, k)
     return tensor, mask
+
+def masked_loss(output, target, mask):
+    loss = F.cross_entropy(output, target, reduction="none")
+    mask_loss = loss * mask
+    return mask_loss.sum() / mask.sum()

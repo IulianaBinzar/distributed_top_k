@@ -5,6 +5,7 @@ import logging
 
 from fallback_mechanism import FallbackMechanism
 from utils import prepare_and_validate_tensor
+from utils import masked_loss
 
 class NetworkMonitor:
     def __init__(self, k: int, node_count: int):
@@ -68,3 +69,12 @@ class NetworkMonitor:
             self.sliding_window_df = self.sliding_window_df[step_size:].reset_index(drop=True)
             return batch, mask
 
+    def train_fallback_mechanism(self, input_tensor, mask, target_tensor, optimizer, epochs):
+        self.fallback_mechanism.train()
+        for epoch in range(epochs):
+            optimizer.zero_grad()
+            output = self.fallback_mechanism(input_tensor)
+            loss = masked_loss(output, target_tensor, mask)
+            loss.backward()
+            optimizer.step()
+            logging.info(f"Epoch {epoch + 1}, Loss: {loss.item()}")
