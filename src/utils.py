@@ -53,9 +53,9 @@ def masked_loss(output, target, mask):
 # The functions below were taken from ChatGPT
 def evaluate_top_k(predicted, ground_truth, k):
     f1_score = f1_score_at_k(predicted, ground_truth, k)
-    pos_score = position_score(predicted, ground_truth, k)
+    pos_score = positional_score(predicted, ground_truth, k)
     ndcg = ndcg_at_k(predicted, ground_truth, k)
-    return precision, pos_score, ndcg
+    return f1_score, pos_score, ndcg
 
 
 def dcg_at_k(predicted, ground_truth, k):
@@ -85,3 +85,12 @@ def f1_score_at_k(predicted, ground_truth, k):
         return 0.0
     f1_score = 2 * (precision * recall) / (precision + recall)
     return f1_score
+
+def positional_score(predicted, ground_truth, k):
+    score = 0.0
+    for i, pred_item in enumerate(predicted[:k]):
+        if pred_item in ground_truth[:k]:
+            true_position = ground_truth.index(pred_item)
+            position_diff = abs(i - true_position)
+            score += 1 / (1 + position_diff)  # Higher score for smaller position differences
+    return score / k  # Normalize the score by K
