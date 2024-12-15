@@ -5,7 +5,7 @@ from stream_forwarder import StreamForwarder
 from site_processor import Site
 import logging
 
-from utils import evaluate_top_k
+from utils import report_node_failure
 
 
 def main():
@@ -47,27 +47,14 @@ def main():
                             )
                         )
                         predictions = network_monitor.fallback_mechanism(tensor)
-                        # Decoded output
-                        # predicted_urls = [
-                        #     [network_monitor.id_to_url[x.item()] for x in pred]
-                        #     for pred in torch.topk(predictions, k, dim=-1).indices
-                        # ]
-                        # actual_urls = [
-                        #     [network_monitor.id_to_url[x.item()] for x in act]
-                        #     for act in torch.topk(target_tensor, k, dim=-1).indices
-                        # ]
+
                         pred_ids = [
                             [x.item() for x in pred]
                             for pred in torch.topk(predictions, k, dim=-1).indices
                         ]
                         pred_ids = pred_ids[0]
                         actual_ids = target_tensor.to(torch.int).tolist()[0]
-                        f1, positional, ndcg = evaluate_top_k(pred_ids, actual_ids, k)
-                        logging.warning(f"Predicted Top-K URLs for Node 0:{pred_ids}")
-                        logging.warning(
-                            f"Actual Top-K URLs for Node 0:{actual_ids}"
-                        )
-                        logging.warning(f"Estimation scores: F1 - {f1}; Positional - {positional}; NDCG - {ndcg}")
+                        report_node_failure(pred_ids, actual_ids, k, detailed=True)
                         inference_due = 0
                         continue
                 inference_due += 1
