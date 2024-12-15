@@ -5,6 +5,8 @@ from stream_forwarder import StreamForwarder
 from site_processor import Site
 import logging
 
+from utils import evaluate_top_k
+
 
 def main():
     # Values to configure
@@ -54,16 +56,19 @@ def main():
                         #     [network_monitor.id_to_url[x.item()] for x in act]
                         #     for act in torch.topk(target_tensor, k, dim=-1).indices
                         # ]
-                        pred_id = [
+                        pred_ids = [
                             [x.item() for x in pred]
                             for pred in torch.topk(predictions, k, dim=-1).indices
                         ]
-                    logging.warning(f"Predicted Top-K URLs for Node 0:{pred_id}")
-                    logging.warning(
-                        f"Actual Top-K URLs for Node 0:{target_tensor.to(torch.int).tolist()}"
-                    )
-                    inference_due = 0
-                    continue
+                        actual_ids = target_tensor.to(torch.int).tolist()
+                        f1, positional, ndcg = evaluate_top_k(pred_ids, actual_ids, k)
+                        logging.warning(f"Predicted Top-K URLs for Node 0:{pred_ids}")
+                        logging.warning(
+                            f"Actual Top-K URLs for Node 0:{actual_ids}"
+                        )
+                        logging.warning(f"Estimation score: F1 - {f1}; Positional - {positional}; NDCG - {ndcg}")
+                        inference_due = 0
+                        continue
                 inference_due += 1
                 # Training
                 logging.info(f"Processing new batch")

@@ -1,5 +1,6 @@
 import torch
 import pandas as pd
+import numpy as np
 import torch.nn.functional as F
 
 
@@ -47,3 +48,40 @@ def masked_loss(output, target, mask):
     loss = F.cross_entropy(output, target, reduction="none")
     mask_loss = loss * mask
     return mask_loss.sum() / mask.sum()
+
+
+# The functions below were taken from ChatGPT
+def evaluate_top_k(predicted, ground_truth, k):
+    f1_score = f1_score_at_k(predicted, ground_truth, k)
+    pos_score = position_score(predicted, ground_truth, k)
+    ndcg = ndcg_at_k(predicted, ground_truth, k)
+    return precision, pos_score, ndcg
+
+
+def dcg_at_k(predicted, ground_truth, k):
+    dcg = 0
+    for i, pred_item in enumerate(predicted[:k]):
+        if pred_item in ground_truth:
+            dcg += 1 / np.log2(i + 2)  # Log base-2 discount
+    return dcg
+
+
+def ndcg_at_k(predicted, ground_truth, k):
+    dcg = dcg_at_k(predicted, ground_truth, k)
+    ideal_dcg = dcg_at_k(ground_truth, ground_truth, k)
+    return dcg / ideal_dcg if ideal_dcg > 0 else 0
+
+
+def f1_score_at_k(predicted, ground_truth, k):
+    predicted_set = set(predicted[:k])
+    ground_truth_set = set(ground_truth[:k])
+
+    intersection = len(predicted_set & ground_truth_set)
+
+    precision = intersection / k
+    recall = intersection / len(ground_truth_set)
+
+    if precision + recall == 0:
+        return 0.0
+    f1_score = 2 * (precision * recall) / (precision + recall)
+    return f1_score
