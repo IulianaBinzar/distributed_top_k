@@ -15,8 +15,8 @@ def main():
     )
     node_count = 3
     # Node 3 is too sparsely populated, will have to change back to 4
-    k = 10
-    batch_size = 4
+    k = 6
+    batch_size = 10
     step_size = 1
 
     # Instantiations

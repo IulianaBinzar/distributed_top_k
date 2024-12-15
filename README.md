@@ -32,8 +32,14 @@ Once the top-k is ready to be reported, it is forwarded to the `NetworkMonitor`.
 ## Output
 The current setup returns the inferred top-k list and the actual list for comparison. For better visibility and reduced verbosity,
 the URLs are returned as an encoded list, but can be decoded if necessary. 
+Additionally, the predicted top-k is evaluated and the F1, positional, and NDCG scores are returned. 
 
 ```
-2024-12-15 19:20:15,394 WARNING: Predicted Top-K URLs for Node 0:[[5, 4, 8, 3, 6, 9, 7, 1, 0, 2]]
-2024-12-15 19:20:15,396 WARNING: Actual Top-K URLs for Node 0:[[5, 4, 3, 2, 9, 7, 1, 4, 33, 10]]
+2024-12-15 22:29:27,175 WARNING: Simulated Node Failure!!!
+2024-12-15 22:29:27,175 WARNING: Predicted Top-K URLs for Node 0:[4, 3, 5, 2, 0, 1]
+2024-12-15 22:29:27,176 WARNING: Actual Top-K URLs for Node 0:[1, 3, 2, 23, 13, 5]
+2024-12-15 22:29:27,176 WARNING: Estimation scores: 
+   F1 - 0.66667; 
+   Positional - 0.31944; 
+   NDCG - 0.58033
 ```
