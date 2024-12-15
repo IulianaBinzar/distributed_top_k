@@ -1,6 +1,6 @@
 # An ML-Augmented HeavyKeeper-Based Fallback Mechanism for Top-K Estimation in Distributed Data Streams
 
-The project simulates a distributed system using the [1998 World Cup Website Access Logs](ita.ee.lbl.gov/html/contrib/WorldCup.html). It computes the top-k most 
+The project simulates a distributed system using the [1998 World Cup Website Access Logs](http://ita.ee.lbl.gov/html/contrib/WorldCup.html). It computes the top-k most 
 often accessed URLs for each site. Periodically a node is assumed to have failed. In that case, the fallback mechanism 
 is called to estimate the top-k based on the top-k of peer nodes and observed correlations between them. 
 
