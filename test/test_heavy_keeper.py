@@ -1,8 +1,8 @@
-import logging
 import random
 import unittest
 
 from heavy_keeper import HeavyKeeper
+
 
 class Test_HeavyKeeper(unittest.TestCase):
     def test_process_log(self):
@@ -19,4 +19,3 @@ class Test_HeavyKeeper(unittest.TestCase):
 
         top_k = myHK.get_string_top_k()
         self.assertEqual(top_k[0][1], "1000")
-

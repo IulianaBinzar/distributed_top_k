@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from heavy_keeper import HeavyKeeper
 
+
 class Site:
     def __init__(self, site_id, k, network_monitor):
         self.site_id = site_id
@@ -18,7 +19,10 @@ class Site:
         log_time = self.extract_time(log_line)
         logging.debug(f"Site {self.site_id} accessed url: {log_url} at {log_time}")
 
-        if not self.last_hk_reset_time or self.last_hk_reset_time - log_time > timedelta(hours=1):
+        if (
+            not self.last_hk_reset_time
+            or self.last_hk_reset_time - log_time > timedelta(hours=1)
+        ):
             self.site_heavy_keeper = HeavyKeeper(self.k)
             self.last_hk_reset_time = log_time
             self.last_report_time = None
@@ -40,8 +44,7 @@ class Site:
         time_str = log_line.strip().split(" ")[0]
         offset_str = log_line.strip().split(" ")[1]
         log_timestamp = datetime.datetime.strptime(
-            time_str + " " + offset_str,
-            "[%d/%b/%Y:%H:%M:%S %z]"
+            time_str + " " + offset_str, "[%d/%b/%Y:%H:%M:%S %z]"
         )
         utc_timestamp = log_timestamp.astimezone(datetime.timezone.utc)
         return utc_timestamp

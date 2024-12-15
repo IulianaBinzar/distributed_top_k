@@ -5,6 +5,7 @@ import logging
 import random
 import heapq
 
+
 class HeavyKeeper:
     def __init__(self, k):
         """
@@ -14,13 +15,16 @@ class HeavyKeeper:
         hash_size - size of the hash table - 10000 in the paper
         """
         self.b = 1.08
-        self.hash_keys = [str(random.randint(0, 2 ** 32 - 1)).encode('utf-8') for _ in range(3)]
+        self.hash_keys = [
+            str(random.randint(0, 2**32 - 1)).encode("utf-8") for _ in range(3)
+        ]
         self.hash_size = 10000
         # Other initialisations
-        self.k = k # length of the list being kept
-        self.sketch = [[(None, 0)
-                        for _ in range(self.hash_size)]
-                       for _ in range(len(self.hash_keys))]
+        self.k = k  # length of the list being kept
+        self.sketch = [
+            [(None, 0) for _ in range(self.hash_size)]
+            for _ in range(len(self.hash_keys))
+        ]
         self.current_top_k = []
 
     def get_string_top_k(self):
@@ -35,7 +39,7 @@ class HeavyKeeper:
     #     return string_result
 
     def url_fingerprint(self, accessed_url: str, hash_key: bytes):
-        url_bytes = accessed_url.encode('utf-8')
+        url_bytes = accessed_url.encode("utf-8")
         byte_encrypted_url = hashlib.sha1(hash_key + url_bytes).digest()
         int_encrypted_url = int.from_bytes(byte_encrypted_url, byteorder="big")
         return int_encrypted_url

@@ -4,7 +4,7 @@ The project simulates a distributed system using the [1998 World Cup Website Acc
 often accessed URLs for each site. Periodically a node is assumed to have failed. In that case, the fallback mechanism 
 is called to estimate the top-k based on the top-k of peer nodes and observed correlations between them. 
 
-To reduce computational overhead, we assume that node 0 is the failing node.
+To reduce computational overhead, we assume that node 0 is the periodically failing node.
 
 ## Input
 The datastream was preprocessed to retain only the following columns:
@@ -24,14 +24,14 @@ Where the site codes are mapped as follows
     Paris 3
 
 ## Pipeline Overview 
-The preprocessed logs are parsed line by line in `main.py`. The log line is passed to `stream_forwarder.py` 
-where it is attributed to the right `site_processor` based on the code. Each site has an associated `heavy_keeper` instance. 
-Once the top-k is ready to be reported it is forwarded to the `NetworkMonitor`. The network monitor trains an instance of 
-`FallbackMechanism` and estimates the next top-k in `network_monitor.fallback_mechanism()`. 
+The preprocessed logs are parsed line by line in `main.py`. The log line is passed to `StreamForwarder` 
+where it is attributed to the right `SiteProcessor` based on the code. Each site has an associated `HeavyKeeper` instance, that computes the top-k. 
+Once the top-k is ready to be reported, it is forwarded to the `NetworkMonitor`. The network monitor trains an instance of 
+`FallbackMechanism` and returns the most recent top-k estimate when requested with `network_monitor.fallback_mechanism()`. 
 
 ## Output
 The current setup returns the inferred top-k list and the actual list for comparison. For better visibility and reduced verbosity,
-the URLs are returned as an encoded list, but they can be decoded if necessary. 
+the URLs are returned as an encoded list, but can be decoded if necessary. 
 
 ```
 2024-12-15 19:20:15,394 WARNING: Predicted Top-K URLs for Node 0:[[5, 4, 8, 3, 6, 9, 7, 1, 0, 2]]
