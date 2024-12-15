@@ -2,19 +2,20 @@ from collections import defaultdict
 
 import pandas as pd
 import logging
+import torch
 
 from fallback_mechanism import FallbackMechanism
-from utils import prepare_and_validate_tensor
+from utils import df_to_tensors
 from utils import masked_loss
 
 class NetworkMonitor:
-    def __init__(self, k: int, node_count: int):
+    def __init__(self, k: int, node_count: int, batch_size: int):
         self.k = k
         self.single_top_k = defaultdict(list)
         self.node_count = node_count
         self.latest_data_timestamp = None
         self.latest_data_collected = [False for _ in range(self.node_count)]
-        self.window_size = 20
+        self.window_size = batch_size
         self.sliding_window_df = pd.DataFrame(columns=["timestamp"] +
                                                       [f"node_{x}_top_k" for x in range(self.node_count)])
         self.unique_urls = set()
@@ -60,14 +61,21 @@ class NetworkMonitor:
             self.sliding_window_df = new_row_df
         else:
             self.sliding_window_df = pd.concat([self.sliding_window_df, new_row_df], ignore_index=True)
-        if len(self.sliding_window_df) >= self.window_size:
-            batch, mask = prepare_and_validate_tensor(self.sliding_window_df,
-                                  self.window_size,
-                                  self.node_count,
-                                  self.k
-                                  )
-            self.sliding_window_df = self.sliding_window_df[step_size:].reset_index(drop=True)
-            return batch, mask
+
+    def prepare_and_validate_tensor(self):
+        data_frame = self.sliding_window_df.copy()
+        data_frame = data_frame.drop(columns="timestamp")
+        target_column = f"node_0_top_k"
+        target_tensor = torch.tensor(
+            [data_frame[target_column].iloc[-1]],
+            dtype=torch.float32,
+        ).view(-1, self.k)
+        tensor, mask = df_to_tensors(data_frame,
+                                     self.window_size,
+                                     self.node_count,
+                                     self.k
+                                     )
+        return tensor, mask, target_tensor
 
     def train_fallback_mechanism(self, input_tensor, mask, target_tensor, optimizer, epochs):
         self.fallback_mechanism.train()
