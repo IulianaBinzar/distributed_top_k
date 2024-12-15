@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 import hashlib
 import logging
 import random
@@ -31,12 +29,6 @@ class HeavyKeeper:
         hashed_result = list(self.current_top_k)
         hashed_result.sort(reverse=True)
         return hashed_result
-
-    # def get_string_top_k(self, hash_key: bytes) -> list[str]:
-    #     hashed_result = self.get_hashed_top_k()
-    #     fernet = Fernet(hash_key)
-    #     string_result = [fernet.decrypt(x) for x in hashed_result]
-    #     return string_result
 
     def url_fingerprint(self, accessed_url: str, hash_key: bytes):
         url_bytes = accessed_url.encode("utf-8")

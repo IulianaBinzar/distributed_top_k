@@ -5,8 +5,8 @@ from stream_forwarder import StreamForwarder
 from site_processor import Site
 import logging
 
-from utils import report_node_failure
-
+from utils.pipeline_utils import node_failure_simulation
+from utils.pipeline_utils import train_model
 
 def main():
     # Values to configure
@@ -19,7 +19,8 @@ def main():
     batch_size = 4
     step_size = 1
 
-    network_monitor = NetworkMonitor(k, node_count, batch_size)
+    # Instantiations
+    network_monitor = NetworkMonitor(k, node_count, batch_size, step_size)
     optimizer = torch.optim.Adam(
         network_monitor.fallback_mechanism.parameters(), lr=0.001
     )
@@ -28,6 +29,7 @@ def main():
     }
     stream_forwarder = StreamForwarder(sites)
 
+    # Workflow
     with open("./../input/mixed_wc_day51_3.log", "r", encoding="ISO-8859-1") as stream:
         logging.info("Parsing stream:")
         inference_due = 0
@@ -36,39 +38,11 @@ def main():
             if len(network_monitor.sliding_window_df) >= batch_size:
                 # Inference
                 if inference_due >= 10 * batch_size:
-                    network_monitor.fallback_mechanism.eval()
-                    with torch.no_grad():
-                        tensor, mask, target_tensor = (
-                            network_monitor.prepare_and_validate_tensor()
-                        )
-                        network_monitor.sliding_window_df = (
-                            network_monitor.sliding_window_df[step_size:].reset_index(
-                                drop=True
-                            )
-                        )
-                        predictions = network_monitor.fallback_mechanism(tensor)
-
-                        pred_ids = [
-                            [x.item() for x in pred]
-                            for pred in torch.topk(predictions, k, dim=-1).indices
-                        ]
-                        pred_ids = pred_ids[0]
-                        actual_ids = target_tensor.to(torch.int).tolist()[0]
-                        report_node_failure(pred_ids, actual_ids, k, detailed=True)
+                        node_failure_simulation(network_monitor)
                         inference_due = 0
                         continue
                 inference_due += 1
-                # Training
-                logging.info(f"Processing new batch")
-                tensor, mask, target_tensor = (
-                    network_monitor.prepare_and_validate_tensor()
-                )
-                network_monitor.sliding_window_df = network_monitor.sliding_window_df[
-                    step_size:
-                ].reset_index(drop=True)
-                network_monitor.train_fallback_mechanism(
-                    tensor, mask, target_tensor, optimizer, epochs=1
-                )
+                train_model(network_monitor, optimizer)
 
 
 if __name__ == "__main__":

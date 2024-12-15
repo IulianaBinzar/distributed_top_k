@@ -5,18 +5,19 @@ import logging
 import torch
 
 from fallback_mechanism import FallbackMechanism
-from utils import df_to_tensors
-from utils import masked_loss
+from utils.common_utils import df_to_tensors
+from utils.common_utils import masked_loss
 
 
 class NetworkMonitor:
-    def __init__(self, k: int, node_count: int, batch_size: int):
+    def __init__(self, k: int, node_count: int, batch_size: int, step_size:int):
         self.k = k
         self.single_top_k = defaultdict(list)
         self.node_count = node_count
         self.latest_data_timestamp = None
         self.latest_data_collected = [False for _ in range(self.node_count)]
         self.window_size = batch_size
+        self.step_size = step_size
         self.sliding_window_df = pd.DataFrame(
             columns=["timestamp"] + [f"node_{x}_top_k" for x in range(self.node_count)]
         )
