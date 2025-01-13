@@ -91,6 +91,10 @@ class NetworkMonitor:
             optimizer.zero_grad()
             output = self.fallback_mechanism(input_tensor)
             loss = masked_loss(output, target_tensor, mask)
+            logging.warning(f"Epoch {epoch + 1}, Loss: {loss.item()}")
             loss.backward()
             optimizer.step()
-            logging.info(f"Epoch {epoch + 1}, Loss: {loss.item()}")
+            logging.warning(f"Output Tensor: {output}")
+            logging.warning(f"Target Tensor: {target_tensor}")
+            logging.warning(f"Mask: {mask}")
+

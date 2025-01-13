@@ -46,7 +46,7 @@ def df_to_tensors(data_frame: pd.DataFrame, seq_len: int, node_count: int, k: in
 
 
 def masked_loss(output, target, mask):
-    loss = F.cross_entropy(output, target, reduction="none")
+    loss = F.cross_entropy(output, target, reduction="none", label_smoothing=0.1)
     mask_loss = loss * mask
     return mask_loss.sum() / mask.sum()
 
