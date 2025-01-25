@@ -27,7 +27,7 @@ class NetworkMonitor:
         self.fallback_mechanism = FallbackMechanism(
             input_size=k * node_count,
             output_size=k,
-            hidden_size=64,
+            hidden_size=128,
             num_layers=2,
             dropout=0.2,
         )

@@ -2,7 +2,7 @@ import unittest
 from datetime import datetime
 
 from network_monitor import NetworkMonitor
-
+from network_monitor import masked_loss
 
 class TestNetworkMonitor(unittest.TestCase):
     def test_receive_top_k(self):
@@ -17,3 +17,5 @@ class TestNetworkMonitor(unittest.TestCase):
         reported_dataframe = network_monitor.sliding_window_df
         self.assertEqual(4, len(reported_dataframe))
         self.assertEqual([1, 2, 3], reported_dataframe["node_1_top_k"].iloc[2])
+
+    # def test_train_fallback_mechanism(self):

@@ -15,14 +15,14 @@ def main():
     )
     node_count = 3
     # Node 3 is too sparsely populated, will have to change back to 4
-    k = 6
-    batch_size = 10
+    k = 3
+    batch_size = 3
     step_size = 1
 
     # Instantiations
     network_monitor = NetworkMonitor(k, node_count, batch_size, step_size)
-    optimizer = torch.optim.Adam(
-        network_monitor.fallback_mechanism.parameters(), lr=0.001
+    optimizer = torch.optim.AdamW(
+        network_monitor.fallback_mechanism.parameters(), lr=0.001, weight_decay=0.01
     )
     sites = {
         site_id: Site(site_id, k, network_monitor) for site_id in range(node_count)
@@ -38,9 +38,10 @@ def main():
             if len(network_monitor.sliding_window_df) >= batch_size:
                 # Inference
                 if inference_due >= 10 * batch_size:
-                        node_failure_simulation(network_monitor)
-                        inference_due = 0
-                        continue
+                    # logging.warning(f"Latest Data: {network_monitor.}")
+                    node_failure_simulation(network_monitor)
+                    inference_due = 0
+                    continue
                 inference_due += 1
                 train_model(network_monitor, optimizer)
 
