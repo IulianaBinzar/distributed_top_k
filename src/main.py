@@ -13,7 +13,7 @@ def main():
     logging.basicConfig(
         level=logging.WARN, format="%(asctime)s %(levelname)s: %(message)s"
     )
-    with open('config.yaml', 'r') as conf_file:
+    with open('../config.yaml', 'r') as conf_file:
         conf = yaml.safe_load(conf_file)
 
     k = conf['k']

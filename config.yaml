@@ -10,6 +10,7 @@ step_size: 1
 inference_frequency: 10
 hidden_size: 128
 num_layers: 2
+nhead: 8
 dropout: 0.2
 epochs: 1
 

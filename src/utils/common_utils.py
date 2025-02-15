@@ -7,12 +7,12 @@ import datetime
 
 ### URL Processing functions
 
-def extract_url(self, log_line: str) -> str:
+def extract_url(log_line: str) -> str:
     log_url = log_line.strip().split(" ")[2]
     return log_url
 
 
-def extract_time(self, log_line: str):
+def extract_time(log_line: str):
     time_str = log_line.strip().split(" ")[0]
     offset_str = log_line.strip().split(" ")[1]
     log_timestamp = datetime.datetime.strptime(
