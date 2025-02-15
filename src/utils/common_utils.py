@@ -3,7 +3,26 @@ import pandas as pd
 import numpy as np
 import torch.nn.functional as F
 import logging
+import datetime
 
+### URL Processing functions
+
+def extract_url(self, log_line: str) -> str:
+    log_url = log_line.strip().split(" ")[2]
+    return log_url
+
+
+def extract_time(self, log_line: str):
+    time_str = log_line.strip().split(" ")[0]
+    offset_str = log_line.strip().split(" ")[1]
+    log_timestamp = datetime.datetime.strptime(
+        time_str + " " + offset_str, "[%d/%b/%Y:%H:%M:%S %z]"
+    )
+    utc_timestamp = log_timestamp.astimezone(datetime.timezone.utc)
+    return utc_timestamp
+
+
+### Tensor processing functions
 
 def pad_to_k_and_mask(lst, k):
     padded_list = (lst + [-1] * k)[:k]
