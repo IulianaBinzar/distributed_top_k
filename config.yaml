@@ -1,0 +1,19 @@
+# Global Parameters
+k: 3
+node_count: 3
+
+# Network Monitor Parameters
+batch_size: 3
+step_size: 1
+
+# Fallback Mechanism Parameters
+inference_frequency: 10
+hidden_size: 128
+num_layers: 2
+nhead: 8
+dropout: 0.2
+epochs: 1
+
+# Optimizer Parameters
+learning_rate: 0.001
+weight_decay: 0.01

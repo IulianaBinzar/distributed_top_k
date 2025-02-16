@@ -26,12 +26,12 @@ def node_failure_simulation(network_monitor):
         actual_ids = target_tensor.to(torch.int).tolist()[0]
         report_node_failure(pred_ids, actual_ids, network_monitor.k, detailed=True)
 
-def train_model(network_monitor, optimizer):
+def train_model(network_monitor, optimizer, epochs):
     logging.info(f"Processing new batch")
     tensor, mask, target_tensor = (
         network_monitor.prepare_and_validate_tensor()
     )
     slide_df_window(network_monitor)
     network_monitor.train_fallback_mechanism(
-        tensor, mask, target_tensor, optimizer, epochs=1
+        tensor, mask, target_tensor, optimizer, epochs
     )
