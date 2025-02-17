@@ -1,5 +1,5 @@
 # Global Parameters
-k: 3
+k: 10
 node_count: 3
 
 # Network Monitor Parameters
@@ -8,10 +8,9 @@ step_size: 1
 
 # Fallback Mechanism Parameters
 inference_frequency: 10
-hidden_size: 128
-num_layers: 2
-nhead: 8
-dropout: 0.2
+hidden_size: 64 # 64 / 128 / 256
+num_layers: 2 # 1 / 2
+dropout: 0.2 # 0.1 / 0.2
 epochs: 1
 
 # Optimizer Parameters
