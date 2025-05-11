@@ -49,6 +49,7 @@ def main():
     stream_forwarder = StreamForwarder(sites)
 
     # Process each log file from S3
+    log_files = ["wc_day46_5_mixed.log", "wc_day48_6_mixed.log"]
     for log_file in log_files:
         logging.info(f"Processing {log_file} from S3")
         s3_object = s3_client.get_object(Bucket=s3_bucket, Key=log_file)
@@ -57,6 +58,8 @@ def main():
         inference_due = 0
         for line_id, line in enumerate(log_stream):
             stream_forwarder.forward_to_site(line)
+            logging.debug(f"Network monitor state:\n")
+            logging.debug(f"{network_monitor.single_top_k}")
             if len(network_monitor.sliding_window_df) >= batch_size:
                 if inference_due >= conf['inference_frequency'] * batch_size:
                     node_failure_simulation(network_monitor)
