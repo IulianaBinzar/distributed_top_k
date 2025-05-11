@@ -13,7 +13,11 @@ from utils.pipeline_utils import train_model
 
 def main():
     logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s"
+        level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s",
+        handlers = [
+            logging.FileHandler("../output/logfile_2files.log"),
+            logging.StreamHandler()
+        ]
     )
     with open('../config.yaml', 'r') as conf_file:
         conf = yaml.safe_load(conf_file)
@@ -49,7 +53,7 @@ def main():
     stream_forwarder = StreamForwarder(sites)
 
     # Process each log file from S3
-    log_files = ["wc_day46_5_mixed.log", "wc_day48_6_mixed.log"]
+    # log_files = ["wc_day46_5_mixed.log", "wc_day48_6_mixed.log"]
     for log_file in log_files:
         logging.info(f"Processing {log_file} from S3")
         s3_object = s3_client.get_object(Bucket=s3_bucket, Key=log_file)
