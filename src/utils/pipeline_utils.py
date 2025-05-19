@@ -19,7 +19,7 @@ def node_failure_simulation(network_monitor):
         report_node_failure(pred_ids, target_indices, network_monitor.k, detailed=True)
 
 def train_model(network_monitor, optimizer, epochs):
-    logging.info("Processing new batch")
+    logging.debug("Processing new batch")
     tensor, mask, target_tensor = network_monitor.prepare_and_validate_tensor()
     slide_df_window(network_monitor)
     network_monitor.train_fallback_mechanism(tensor, mask, target_tensor, optimizer, epochs)

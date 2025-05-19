@@ -40,7 +40,7 @@ class NetworkMonitor:
             top_k_list.append(self.url_to_id[item])
         self.single_top_k[node_id] = top_k_list
         self.latest_data_collected[node_id] = True
-        logging.info(f"Node {node_id} data: {self.single_top_k[node_id]}")
+        logging.debug(f"Node {node_id} data: {self.single_top_k[node_id]}")
 
         if not self.latest_data_timestamp:
             self.latest_data_timestamp = timestamp
